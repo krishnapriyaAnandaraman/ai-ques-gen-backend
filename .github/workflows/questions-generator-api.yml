@@ -1,26 +1,21 @@
-name: Question Generator API 
+name: Question Generator API
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'questions-generator-api/**'
+
   pull_request:
     branches:
       - main
-    paths:
-      - 'questions-generator-api/**'
 
 jobs:
   build-test-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: questions-generator-api
+
     permissions:
-      id-token: write # Required for requesting the OIDC JWT
-      contents: read # Required for checking out the repository
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout Repository
