@@ -1,0 +1,54 @@
+name: Question Generator API 
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'questions-generator-api/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'questions-generator-api/**'
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: questions-generator-api
+    permissions:
+      id-token: write # Required for requesting the OIDC JWT
+      contents: read # Required for checking out the repository
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install AWS CDK
+        run: npm install -g aws-cdk
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Unit Tests
+        run: npm test
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::857931482206:role/HRS_GITHUB_ACTIONROLE_API_PROD
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: us-east-1
+
+      - name: CDK Synth
+        run: cdk synth
+
+      - name: CDK Deploy
+        run: cdk deploy --all --require-approval never
